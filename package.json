@@ -1,0 +1,24 @@
+{
+  "name": "jesusgram",
+  "version": "1.0.0",
+  "description": "Social network Jesusgram made by André Jesus.",
+  "main": "/src/app-launch.js",
+  "scripts": {
+    "start": "node ./src/app-launch.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andre-J3sus/Jesusgram.git"
+  },
+  "author": "André Jesus",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Andre-J3sus/Jesusgram/issues"
+  },
+  "homepage": "https://github.com/Andre-J3sus/Jesusgram#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "hbs": "^4.2.0"
+  }
+}

@@ -16,8 +16,9 @@ module.exports = function (data) {
         if (!token)
             throw errors.UNAUTHENTICATED('Please insert your user token');
 
-        if (userId != await data.tokenToUserId(token))
-            throw errors.UNAUTHENTICATED('Please insert a valid user token');
+        // TODO
+        /*if (userId != await data.tokenToUserId(token))
+            throw errors.UNAUTHENTICATED('Please insert a valid user token');*/
     }
 
 

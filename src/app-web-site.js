@@ -36,8 +36,8 @@ module.exports = function (services, guest) {
         const token = getBearerToken(req);
 
         try {
-            const dashboard = await services.getUserDashboard(userId, token);
-            res.render('dashboard', { user: userId, dashboard });
+            const dashboard = (await services.getUserDashboard(userId, token)).reverse();
+            res.render('dashboard', { userId, dashboard });
         }
         catch (error) {
             // To be improved
@@ -50,13 +50,13 @@ module.exports = function (services, guest) {
      * @param {Object} req 
      * @param {Object} res 
      */
-    function createPost(req, res) {
+    async function createPost(req, res) {
         const userId = req.params.userId;
         const token = getBearerToken(req);
         const post = req.body.post;
 
         try {
-            services.createPost(userId, token, post);
+            await services.createPost(userId, token, post);
             res.redirect(`/user/${userId}/dashboard`);
         } catch (error) {
             // To be improved
@@ -110,13 +110,13 @@ module.exports = function (services, guest) {
      * @param {Object} req 
      * @param {Object} res 
      */
-    function loginUser(req, res) {
+    async function loginUser(req, res) {
         const userId = req.body.userId;
         const token = getBearerToken(req);
         const password = req.body.password;
 
         try {
-            // To be improved
+            await services.loginUser(userId, token, password);
             res.redirect(`/user/${userId}/dashboard`);
         } catch (error) {
             // To be improved

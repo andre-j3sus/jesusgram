@@ -7,9 +7,9 @@
 
 <hr>
 
-<div class="card card-body w-50 h-center">
+<div class="card card-body w-50 h-center mb-5 bg-light">
     <h1>Create post</h1>
-    <form action="/user/:userId/dashboard" method="POST">
+    <form action="/user/{{userId}}/dashboard" method="POST">
         <div class="mb-3">
             <textarea class="form-control" name="post" id="textareaChars" placeholder="What's on your mind?"
                 maxlength="150" style="height: 80px;" required></textarea>
@@ -17,3 +17,9 @@
         <button type="submit" class="btn btn-primary">Post</button>
     </form>
 </div>
+
+{{#each dashboard}}
+<div class="card card-body w-50 h-center mb-3 bg-light">
+    <p>{{this}}</p>
+</div>
+{{/each}}

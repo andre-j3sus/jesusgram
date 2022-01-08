@@ -4,7 +4,7 @@
 
 const crypto = require('crypto');
 
-module.exports = () => {
+module.exports = function (db) {
 
     // ------------------------- Tokens -------------------------
 
@@ -14,7 +14,26 @@ module.exports = () => {
      * @returns the userId associated with the given token
      */
     async function tokenToUserId(token) {
-        return "guestId";
+        try {
+            await db.client.connect();
+
+            const database = db.client.db(db.name);
+            const tokens = database.collection('tokens');
+
+            const doc = await tokens.findOne({ token });
+            console.log(doc);
+
+            return doc.userId;
+        }
+        catch (err) {
+            console.log(err);
+            // To be improved
+        }
+        finally {
+            await db.client.close();
+        }
+
+        return null;
     }
 
 
@@ -27,14 +46,25 @@ module.exports = () => {
         const token = crypto.randomUUID();
 
         try {
-            // To be implemented
+            await db.client.connect();
+
+            const database = db.client.db(db.name);
+            const tokens = database.collection('tokens');
+
+            const insertResult = await tokens.insertOne({ token, userId });
+            console.log('Created token:', insertResult);
+
+            return token;
         }
         catch (err) {
             console.log(err);
             // To be improved
         }
+        finally {
+            await db.client.close();
+        }
 
-        return token;
+        return null;
     }
 
 
@@ -47,9 +77,31 @@ module.exports = () => {
      * @param {String} password 
      * @returns an object with the new user information
      */
-    async function createNewUser(userId, userName, password) {
-        // To be implemented
-        return {};
+    async function createUser(userId, userName, password) {
+        const user = { userId, userName, password, posts: [], following: [] };
+
+        try {
+            await createToken(userId);
+
+            await db.client.connect();
+
+            const database = db.client.db(db.name);
+            const users = database.collection('users');
+
+            const insertResult = await users.insertOne(user);
+            console.log('Created user:', insertResult);
+
+            return user;
+        }
+        catch (err) {
+            console.log(err);
+            // To be improved
+        }
+        finally {
+            await db.client.close();
+        }
+
+        return null;
     }
 
 
@@ -60,8 +112,26 @@ module.exports = () => {
      * @throws NOT_FOUND if the user doesn't exist
      */
     async function getUser(userId) {
-        // To be implemented
-        return {};
+        try {
+            await db.client.connect();
+
+            const database = db.client.db(db.name);
+            const users = database.collection('users');
+
+            const user = await users.findOne({ userId });
+            console.log(user);
+
+            return user;
+        }
+        catch (err) {
+            console.log(err);
+            // To be improved
+        }
+        finally {
+            await db.client.close();
+        }
+
+        return null;
     }
 
     /**
@@ -71,23 +141,56 @@ module.exports = () => {
      * @returns the post object
      */
     async function createPost(userId, post) {
-        // To be implemented
-        return {};
+        const user = await getUser(userId);
+        if (user) {
+            try {
+                await db.client.connect();
+
+                const database = db.client.db(db.name);
+                const users = database.collection('users');
+
+                user.posts.push(post);
+
+                const updateResult = await users.updateOne({ userId }, { $set: user });
+                console.log(updateResult);
+
+                return user;
+            }
+            catch (err) {
+                console.log(err);
+                // To be improved
+            }
+            finally {
+                await db.client.close();
+            }
+        }
+
+        return null;
     }
 
     /**
      * Gets the user dashboard.
      * @param {String} userId 
-     * @returns the dashboard object
+     * @returns the dashboard
      */
     async function getUserDashboard(userId) {
-        // To be implemented
-        return {};
+        const user = await getUser(userId);
+        if (user) {
+            const dashboard = user.posts;
+            user.following.forEach(async followingId => {
+                const following = await getUser(followingId);
+                dashboard.concat(following.posts);
+            }); // TODO try with flatmap
+
+            return dashboard;
+        }
+
+        return null;
     }
 
     return {
         //-- User --
-        createNewUser,
+        createUser,
         getUser,
         createPost,
         getUserDashboard,

@@ -107,10 +107,30 @@ module.exports = function (data) {
         return await data.createUser(userId, userName, password);
     }
 
+    /**
+     * Logins a user.
+     * @param {String} userId 
+     * @param {String} token 
+     * @param {String} password 
+     */
+    async function loginUser(userId, token, password) {
+        checkBadRequest({
+            body: {
+                userId: { value: userId, type: 'string', required: true },
+                password: { value: password, type: 'string', required: true }
+            }
+        });
+
+        await checkAuthentication(token, userId);
+
+        await data.getUser(userId);
+    }
+
 
     return {
         createPost,
         getUserDashboard,
-        createUser
+        createUser,
+        loginUser
     };
 };

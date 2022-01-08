@@ -1,1 +1,19 @@
-<h1>Dashboard</h1>
+<nav class="nav nav-pills center">
+    <a class="navbar-brand" href="/"><img src="/public/logo_inline.png" alt="Logo" height="70"></a>
+    <a class="nav-link active" href="/user/:userId/dashboard">Dashboard</a>
+    <a class="nav-link" href="/user/:userId/profile">Profile</a>
+    <a class="nav-link" href="/user/:userId/logout">Logout</a>
+</nav>
+
+<hr>
+
+<div class="card card-body w-50 h-center">
+    <h1>Create post</h1>
+    <form action="/user/:userId/dashboard" method="POST">
+        <div class="mb-3">
+            <textarea class="form-control" name="post" id="textareaChars" placeholder="What's on your mind?"
+                maxlength="150" style="height: 80px;" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Post</button>
+    </form>
+</div>

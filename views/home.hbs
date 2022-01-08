@@ -1,3 +1,17 @@
+<nav class="nav nav-pills center">
+    <a class="navbar-brand" href="/"><img src="/public/logo_inline.png" alt="Logo" height="70"></a>
+
+    {{#with user}}
+    <a class="nav-link" href="/user/:userId/dashboard">Dashboard</a>
+    <a class="nav-link" href="/user/:userId/profile">Profile</a>
+    <a class="nav-link" href="/user/:userId/logout">Logout</a>
+    {{else}}
+    <a class="nav-link" href="/user/register-login">Register/Login</a>
+    {{/with}}
+</nav>
+
+<hr>
+
 <h1>Welcome to Jesusgram!</h1>
 <br>
 <h5>Jesusgram is a photo and video sharing social network. </h5>

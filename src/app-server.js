@@ -3,7 +3,7 @@
 // Entry point to the server application.
 
 module.exports = function (guest) {
-    const data = require('./app-data');
+    const data = require('./app-data')();
     const services = require('./app-services.js')(data);
     const web_site = require('./app-web-site.js')(services, guest);
 

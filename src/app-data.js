@@ -3,6 +3,7 @@
 // Access to app data.
 
 const crypto = require('crypto');
+const errors = require('./app-errors');
 
 module.exports = function (db) {
 
@@ -12,6 +13,7 @@ module.exports = function (db) {
      * Return the userId associated with the given token.
      * @param {String} token 
      * @returns the userId associated with the given token
+     * @throws NOT_FOUND if the given token does not exist
      */
     async function tokenToUserId(token) {
         try {
@@ -21,7 +23,7 @@ module.exports = function (db) {
             const tokens = database.collection('tokens');
 
             const doc = await tokens.findOne({ token });
-            console.log(doc);
+            // console.log(doc);
 
             return doc.userId;
         }
@@ -33,13 +35,13 @@ module.exports = function (db) {
             await db.client.close();
         }
 
-        return null;
+        throw errors.NOT_FOUND('Given token does not exist.');
     }
 
     /**
      * Creates a token, associating it to a userId.
-     * @param {String} token 
-     * @returns token
+     * @param {String} userId 
+     * @returns token or null
      */
     async function createToken(userId) {
         const token = crypto.randomUUID();
@@ -51,7 +53,7 @@ module.exports = function (db) {
             const tokens = database.collection('tokens');
 
             const insertResult = await tokens.insertOne({ token, userId });
-            console.log('Created token:', insertResult);
+            // console.log('Created token:', insertResult);
 
             return token;
         }
@@ -110,7 +112,8 @@ module.exports = function (db) {
      * @param {String} userId 
      * @param {String} userName 
      * @param {String} password 
-     * @returns an object with the new user information
+     * @returns an object with the new user or null
+     * @throws ALREADY_EXISTS if the user already exists
      */
     async function createUser(userId, userName, password) {
         const user = {
@@ -121,6 +124,9 @@ module.exports = function (db) {
             following: []
         };
 
+        if (await getUser(userId))
+            throw errors.ALREADY_EXISTS('User with specified userID already exists.');
+
         try {
             await createToken(userId);
 
@@ -130,7 +136,7 @@ module.exports = function (db) {
             const users = database.collection('users');
 
             const insertResult = await users.insertOne(user);
-            console.log('Created user:', insertResult);
+            // console.log('Created user:', insertResult);
 
             return user;
         }
@@ -148,8 +154,8 @@ module.exports = function (db) {
     /**
      * Gets an user.
      * @param {String} userId 
-     * @returns the user object
-     * @throws NOT_FOUND if the user doesn't exist
+     * @returns the user object or null
+     * @throws NOT_FOUND if the user does not exist
      */
     async function getUser(userId) {
         try {
@@ -159,7 +165,7 @@ module.exports = function (db) {
             const users = database.collection('users');
 
             const user = await users.findOne({ userId });
-            console.log(user);
+            // console.log(user);
 
             return user;
         }
@@ -171,14 +177,15 @@ module.exports = function (db) {
             await db.client.close();
         }
 
-        return null;
+        throw errors.NOT_FOUND('User does not exist.');
     }
 
     /**
      * Creates a post.
      * @param {String} userId 
      * @param {String} post 
-     * @returns the post object
+     * @returns the user
+     * @throws NOT_FOUND if the user does not exist
      */
     async function createPost(userId, post) {
         const user = await getUser(userId);
@@ -192,7 +199,7 @@ module.exports = function (db) {
                 user.posts.push(post);
 
                 const updateResult = await users.updateOne({ userId }, { $set: user });
-                console.log(updateResult);
+                // console.log(updateResult);
 
                 return user;
             }
@@ -204,14 +211,15 @@ module.exports = function (db) {
                 await db.client.close();
             }
         }
-
-        return null;
+        else
+            throw errors.NOT_FOUND('User does not exist.');
     }
 
     /**
      * Gets the user dashboard.
      * @param {String} userId 
      * @returns the dashboard
+     * @throws NOT_FOUND if the user does not exist
      */
     async function getUserDashboard(userId) {
         const user = await getUser(userId);
@@ -220,25 +228,26 @@ module.exports = function (db) {
             user.following.forEach(async followingId => {
                 const following = await getUser(followingId);
                 dashboard.concat(following.posts);
-            }); // TODO try with flatmap
+            });
 
             return dashboard;
         }
-
-        return null;
+        else
+            throw errors.NOT_FOUND('User does not exist.');
     }
 
     /**
      * Gets the user password.
      * @param {String} userId 
      * @returns the password
+     * @throws NOT_FOUND if the user does not exist
      */
     async function getUserPassword(userId) {
         const user = await getUser(userId);
         if (user)
-            return user.password;;
-
-        return null;
+            return user.password;
+        else
+            throw errors.NOT_FOUND('User does not exist.');
     }
 
 

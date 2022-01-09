@@ -22,7 +22,9 @@ module.exports = function (services, guest) {
      * @param {Object} res 
      */
     function getHomePage(req, res) {
-        res.render('home');
+        const userId = req.params.userId;
+
+        res.render('home', { userId });
     }
 
 
@@ -37,10 +39,12 @@ module.exports = function (services, guest) {
         const token = getBearerToken(req);
 
         try {
-            const dashboard = (await services.getUserDashboard(userId, token)).reverse();
-            res.render('dashboard', { userId, dashboard });
+            const dashboard = await services.getUserDashboard(userId, token);
+            const dashboardInOrder = dashboard ? dashboard.reverse() : dashboard;
+            res.render('dashboard', { userId, dashboard: dashboardInOrder });
         }
         catch (error) {
+            console.log(error);
             // To be improved
             res.redirect(`/`);
         }
@@ -55,6 +59,7 @@ module.exports = function (services, guest) {
         const userId = req.params.userId;
         const token = getBearerToken(req);
         const post = req.body.post;
+        const inpFile = req.body.inpFile;
 
         try {
             await services.createPost(userId, token, post);
@@ -72,10 +77,20 @@ module.exports = function (services, guest) {
      * @param {Object} req 
      * @param {Object} res 
      */
-    function getProfilePage(req, res) {
+    async function getProfilePage(req, res) {
         const userId = req.params.userId;
+        const token = getBearerToken(req);
 
-        res.render('profile', { user: userId });
+        try {
+            const user = await services.getUser(userId, token);
+
+            res.render('profile', { userId, user });
+        } catch (error) {
+            console.log(error);
+            // To be improved
+            res.redirect(`/`);
+        }
+
     }
 
     /**
@@ -101,8 +116,12 @@ module.exports = function (services, guest) {
             await services.createUser(userId, userName, password);
             res.redirect(`/user/${userId}/dashboard`);
         } catch (error) {
-            // To be improved
-            res.redirect(`/`);
+            if (error.name == 'ALREADY_EXISTS')
+                res.render('register_login', { already_exists: error })
+            else
+                res.redirect(`/`);
+
+            console.log(error);
         }
     }
 
@@ -120,8 +139,12 @@ module.exports = function (services, guest) {
             await services.loginUser(userId, token, password);
             res.redirect(`/user/${userId}/dashboard`);
         } catch (error) {
-            // To be improved
-            res.redirect(`/`);
+            if (error.name == 'FORBIDDEN')
+                res.render('register_login', { forbidden: error })
+            else
+                res.redirect(`/`);
+
+            console.log(error);
         }
     }
 
@@ -144,11 +167,52 @@ module.exports = function (services, guest) {
     }
 
 
+    // --------------------------- Search Users ---------------------------
+    /**
+     * Gets the search page.
+     * @param {Object} req 
+     * @param {Object} res 
+     */
+    function getSearchPage(req, res) {
+        const userId = req.params.userId;
+
+        try {
+            // To be improved
+            res.render('search', { userId });
+        } catch (error) {
+            // To be improved
+            res.redirect(`/`);
+        }
+    }
+
+    /**
+     * Search for a user
+     * @param {Object} req 
+     * @param {Object} res 
+     */
+    function searchUser(req, res) {
+        const userId = req.params.userId;
+        const searchedUserId = req.query.searchedUserId;
+
+        try {
+            // To be implemented
+            res.redirect(`/`);
+        } catch (error) {
+            // To be improved
+            res.redirect(`/`);
+        }
+    }
+
+
     const router = express.Router();
     router.use(express.urlencoded({ extended: true }));
 
     // Homepage
     router.get('/', getHomePage);
+
+    // Homepage when logged in
+    router.get('/user/:userId/home', getHomePage);
+
 
     // Dashboard
     router.get('/user/:userId/dashboard', getDashboardPage);
@@ -156,8 +220,10 @@ module.exports = function (services, guest) {
     // Create post
     router.post('/user/:userId/dashboard', createPost);
 
+
     // Profile
     router.get('/user/:userId/profile', getProfilePage);
+
 
     // Register/Login page
     router.get('/user/register-login', getRegisterLoginPage);
@@ -170,6 +236,13 @@ module.exports = function (services, guest) {
 
     // Logout user
     router.get('/user/:userId/logout', logoutUser);
+
+
+    // Search page
+    router.get('/user/:userId/search', getSearchPage);
+
+    // Search user
+    router.get('/user/{{userId}}/searchUser', searchUser);
 
     return router;
 };

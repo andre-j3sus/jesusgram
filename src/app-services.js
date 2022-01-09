@@ -34,7 +34,7 @@ module.exports = function (data) {
             throw errors.FORBIDDEN('Please insert your password');
 
         if (!(await data.verify(password, await data.getUserPassword(userId))))
-            throw errors.FORBIDDEN('Please insert a valid username/password');
+            throw errors.FORBIDDEN('Please insert a valid userId/password combination');
     }
 
     /**
@@ -80,8 +80,8 @@ module.exports = function (data) {
     /**
      * Creates a new user.
      * @param {String} userId 
-     * @param {String} token 
-     * @param {String} post 
+     * @param {String} userName 
+     * @param {String} password 
      */
     async function createUser(userId, userName, password) {
         checkBadRequest({
@@ -93,6 +93,18 @@ module.exports = function (data) {
         });
 
         return await data.createUser(userId, userName, password);
+    }
+
+    /**
+     * Gets a user.
+     * @param {String} userId 
+     * @param {String} token
+     * @returns the user object or null if user was not found
+     */
+    async function getUser(userId, token) {
+        await checkAuthentication(token, userId);
+
+        return await data.getUser(userId);
     }
 
     /**
@@ -147,6 +159,7 @@ module.exports = function (data) {
 
     return {
         createUser,
+        getUser,
         createPost,
         getUserDashboard,
         loginUser

@@ -1,20 +1,24 @@
 <nav class="nav nav-pills center">
-    <a class="navbar-brand" href="/"><img src="/public/logo_inline.png" alt="Logo" height="70"></a>
-    <a class="nav-link active" href="/user/:userId/dashboard">Dashboard</a>
-    <a class="nav-link" href="/user/:userId/profile">Profile</a>
-    <a class="nav-link" href="/user/:userId/logout">Logout</a>
+    <a class="navbar-brand" href="/user/{{userId}}/home"><img src="/public/logo_inline.png" alt="Logo" height="70"></a>
+    <a class="nav-link active" href="/user/{{userId}}/dashboard">Dashboard</a>
+    <a class="nav-link" href="/user/{{userId}}/search">Search People</a>
+    <a class="nav-link" href="/user/{{userId}}/profile">Profile</a>
+    <a class="nav-link" href="/user/{{userId}}/logout">Logout</a>
 </nav>
 
 <hr>
 
 <div class="card card-body w-50 h-center mb-5 bg-light">
     <h1>Create post</h1>
-    <form action="/user/{{userId}}/dashboard" method="POST">
+    <form action="/user/{{userId}}/dashboard" method="POST" id="myForm">
         <div class="mb-3">
             <textarea class="form-control" name="post" id="textareaChars" placeholder="What's on your mind?"
                 maxlength="150" style="height: 80px;" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Post</button>
+        <div class="input-group mb-3">
+            <input type="file" class="form-control" id="inpFile" name="inpFile" accept="image/*">
+            <button type="submit" class="btn btn-primary w-25">Post</button>
+        </div>
     </form>
 </div>
 

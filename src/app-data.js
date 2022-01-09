@@ -36,7 +36,6 @@ module.exports = function (db) {
         return null;
     }
 
-
     /**
      * Creates a token, associating it to a userId.
      * @param {String} token 
@@ -68,6 +67,42 @@ module.exports = function (db) {
     }
 
 
+    // ------------------------- Passwords -------------------------
+
+    /**
+     * Hashes the password.
+     * @param {String} password 
+     * @returns promise with hashed password
+     */
+    async function hash(password) {
+        return new Promise((resolve, reject) => {
+            // generate random 16 bytes long salt
+            const salt = crypto.randomBytes(16).toString("hex")
+
+            crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+                if (err) reject(err);
+                resolve(salt + ":" + derivedKey.toString('hex'))
+            });
+        })
+    }
+
+    /**
+     * Verifies if the hash matches the password.
+     * @param {String} password 
+     * @param {String} hash 
+     * @returns promise with boolean (true if they match)
+     */
+    async function verify(password, hash) {
+        return new Promise((resolve, reject) => {
+            const [salt, key] = hash.split(":")
+            crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+                if (err) reject(err);
+                resolve(key == derivedKey.toString('hex'))
+            });
+        })
+    }
+
+
     // ------------------------- Users -------------------------
 
     /**
@@ -78,7 +113,13 @@ module.exports = function (db) {
      * @returns an object with the new user information
      */
     async function createUser(userId, userName, password) {
-        const user = { userId, userName, password, posts: [], following: [] };
+        const user = {
+            userId,
+            userName,
+            password: await hash(password),
+            posts: [],
+            following: []
+        };
 
         try {
             await createToken(userId);
@@ -103,7 +144,6 @@ module.exports = function (db) {
 
         return null;
     }
-
 
     /**
      * Gets an user.
@@ -188,14 +228,33 @@ module.exports = function (db) {
         return null;
     }
 
+    /**
+     * Gets the user password.
+     * @param {String} userId 
+     * @returns the password
+     */
+    async function getUserPassword(userId) {
+        const user = await getUser(userId);
+        if (user)
+            return user.password;;
+
+        return null;
+    }
+
+
     return {
         //-- User --
         createUser,
         getUser,
         createPost,
         getUserDashboard,
+        getUserPassword,
 
         //-- Tokens --
-        tokenToUserId
+        tokenToUserId,
+
+        //-- Passwords --
+        hash,
+        verify
     };
 }

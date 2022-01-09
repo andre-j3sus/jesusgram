@@ -30,9 +30,11 @@
                     <div class="mb-3">
                         <label for="password" class="form-label">Password:</label>
                         <input type="password" class="form-control" id="password" name="password"
-                            placeholder="Enter Your Password" required>
+                            placeholder="Enter Your Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
                         <small id="passwordHelp" class="form-text text-muted">
                             Don't share your password with anyone.
+                            Must contain at least one number and one uppercase and lowercase letter, and at least 8 or
+                            more characters
                         </small>
                     </div>
 

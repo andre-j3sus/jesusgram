@@ -25,6 +25,7 @@ module.exports = function (services, guest) {
         res.render('home');
     }
 
+
     // --------------------------- Dashboard ---------------------------
     /**
      * Gets the dashboard page.
@@ -141,6 +142,7 @@ module.exports = function (services, guest) {
             res.redirect(`/`);
         }
     }
+
 
     const router = express.Router();
     router.use(express.urlencoded({ extended: true }));

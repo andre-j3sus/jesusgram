@@ -6,6 +6,8 @@ const errors = require('./app-errors');
 
 module.exports = function (data) {
 
+    // ------------------------- Defensive Middleware -------------------------
+
     /**
      * Checks if both token and userId are associated.
      * @param {String} token
@@ -21,6 +23,19 @@ module.exports = function (data) {
             throw errors.UNAUTHENTICATED('Please insert a valid user token');*/
     }
 
+    /**
+     * Checks if both userId and password are associated.
+     * @param {String} userId
+     * @param {String} password
+     * @throws FORBIDDEN if the password is invalid
+     */
+    async function checkCredentials(userId, password) {
+        if (!password)
+            throw errors.FORBIDDEN('Please insert your password');
+
+        if (!(await data.verify(password, await data.getUserPassword(userId))))
+            throw errors.FORBIDDEN('Please insert a valid username/password');
+    }
 
     /**
      * Validates a request, checking its query parameters and/or body properties, given a schema.
@@ -60,6 +75,26 @@ module.exports = function (data) {
     }
 
 
+    // ------------------------- Users -------------------------
+
+    /**
+     * Creates a new user.
+     * @param {String} userId 
+     * @param {String} token 
+     * @param {String} post 
+     */
+    async function createUser(userId, userName, password) {
+        checkBadRequest({
+            body: {
+                userId: { value: userId, type: 'string', required: true },
+                userName: { value: userName, type: 'string', required: true },
+                password: { value: password, type: 'string', required: true }
+            }
+        });
+
+        return await data.createUser(userId, userName, password);
+    }
+
     /**
      * Creates a post.
      * @param {String} userId 
@@ -89,25 +124,6 @@ module.exports = function (data) {
         return await data.getUserDashboard(userId);
     }
 
-
-    /**
-     * Creates a new user.
-     * @param {String} userId 
-     * @param {String} token 
-     * @param {String} post 
-     */
-    async function createUser(userId, userName, password) {
-        checkBadRequest({
-            body: {
-                userId: { value: userId, type: 'string', required: true },
-                userName: { value: userName, type: 'string', required: true },
-                password: { value: password, type: 'string', required: true }
-            }
-        });
-
-        return await data.createUser(userId, userName, password);
-    }
-
     /**
      * Logins a user.
      * @param {String} userId 
@@ -123,15 +139,16 @@ module.exports = function (data) {
         });
 
         await checkAuthentication(token, userId);
+        await checkCredentials(userId, password);
 
         await data.getUser(userId);
     }
 
 
     return {
+        createUser,
         createPost,
         getUserDashboard,
-        createUser,
         loginUser
     };
 };

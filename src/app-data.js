@@ -68,42 +68,34 @@ module.exports = function (db) {
         return null;
     }
 
-
-    // ------------------------- Passwords -------------------------
-
     /**
-     * Hashes the password.
-     * @param {String} password 
-     * @returns promise with hashed password
-     */
-    async function hash(password) {
-        return new Promise((resolve, reject) => {
-            // generate random 16 bytes long salt
-            const salt = crypto.randomBytes(16).toString("hex")
+	 * Gets an user token.
+	 * @param {String} userId 
+	 * @returns the user token
+	 * @throws NOT_FOUND if the token doesn't exist
+	 */
+	async function getToken(userId) {
+        try {
+            await db.client.connect();
 
-            crypto.scrypt(password, salt, 64, (err, derivedKey) => {
-                if (err) reject(err);
-                resolve(salt + ":" + derivedKey.toString('hex'))
-            });
-        })
-    }
+            const database = db.client.db(db.name);
+            const users = database.collection('tokens');
 
-    /**
-     * Verifies if the hash matches the password.
-     * @param {String} password 
-     * @param {String} hash 
-     * @returns promise with boolean (true if they match)
-     */
-    async function verify(password, hash) {
-        return new Promise((resolve, reject) => {
-            const [salt, key] = hash.split(":")
-            crypto.scrypt(password, salt, 64, (err, derivedKey) => {
-                if (err) reject(err);
-                resolve(key == derivedKey.toString('hex'))
-            });
-        })
-    }
+            const token = await users.findOne({ userId });
+            // console.log(token);
 
+            return token.token;
+        }
+        catch (err) {
+            console.log(err);
+            // To be improved
+        }
+        finally {
+            await db.client.close();
+        }
+
+        throw errors.NOT_FOUND({ 'token for user': userId });
+	}
 
     // ------------------------- Users -------------------------
 
@@ -115,11 +107,11 @@ module.exports = function (db) {
      * @returns an object with the new user or null
      * @throws ALREADY_EXISTS if the user already exists
      */
-    async function createUser(userId, userName, password) {
+    async function createUser(userId, userName, hashedPassword) {
         const user = {
             userId,
             userName,
-            password: await hash(password),
+            hashedPassword,
             posts: [],
             following: []
         };
@@ -261,9 +253,6 @@ module.exports = function (db) {
 
         //-- Tokens --
         tokenToUserId,
-
-        //-- Passwords --
-        hash,
-        verify
+        getToken
     };
 }

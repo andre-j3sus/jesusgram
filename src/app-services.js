@@ -2,6 +2,7 @@
 
 // Implementation of the logic of each of the application's functionalities
 
+const crypto = require('crypto');
 const errors = require('./app-errors');
 
 module.exports = function (data) {
@@ -18,23 +19,28 @@ module.exports = function (data) {
         if (!token)
             throw errors.UNAUTHENTICATED('Please insert your user token');
 
-        // TODO
-        /*if (userId != await data.tokenToUserId(token))
-            throw errors.UNAUTHENTICATED('Please insert a valid user token');*/
+        if (userId != await data.tokenToUserId(token))
+            throw errors.UNAUTHENTICATED('Please insert a valid user token');
     }
 
     /**
      * Checks if both userId and password are associated.
      * @param {String} userId
      * @param {String} password
-     * @throws FORBIDDEN if the password is invalid
+     * @returns user object
+     * @throws MISSING_PARAM if userId or password are missing
+     * @throws UNAUTHENTICATED if the userId and password are not associated
      */
     async function checkCredentials(userId, password) {
-        if (!password)
-            throw errors.FORBIDDEN('Please insert your password');
+        if (!userId || !password)
+            throw errors.MISSING_PARAM('missing credentials');
 
-        if (!(await data.verify(password, await data.getUserPassword(userId))))
-            throw errors.FORBIDDEN('Please insert a valid userId/password combination');
+        const user = await data.getUser(userId);
+
+        if (user.hashedPassword !== getHashedPassword(password))
+            throw errors.UNAUTHENTICATED({ userId, password });
+
+        return user;
     }
 
     /**
@@ -92,7 +98,7 @@ module.exports = function (data) {
             }
         });
 
-        return await data.createUser(userId, userName, password);
+        return await data.createUser(userId, userName, getHashedPassword(password));
     }
 
     /**
@@ -137,23 +143,21 @@ module.exports = function (data) {
     }
 
     /**
-     * Logins a user.
+     * Gets one token associated with userId.
      * @param {String} userId 
-     * @param {String} token 
-     * @param {String} password 
+     * @returns the token
      */
-    async function loginUser(userId, token, password) {
-        checkBadRequest({
-            body: {
-                userId: { value: userId, type: 'string', required: true },
-                password: { value: password, type: 'string', required: true }
-            }
-        });
+    async function getToken(userId) {
+        return await data.getToken(userId);
+    }
 
-        await checkAuthentication(token, userId);
-        await checkCredentials(userId, password);
-
-        await data.getUser(userId);
+    /**
+     * Receives a password and returns hashed password using sha256 algorithm.
+     * @param {String} password 
+     * @returns hashed password
+     */
+    function getHashedPassword(password) {
+        return crypto.createHash('sha256').update(password).digest('hex');
     }
 
 
@@ -162,6 +166,7 @@ module.exports = function (data) {
         getUser,
         createPost,
         getUserDashboard,
-        loginUser
+        checkCredentials,
+        getToken
     };
 };

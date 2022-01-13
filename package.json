@@ -20,8 +20,10 @@
   "dependencies": {
     "crypto": "^1.0.1",
     "express": "^4.17.2",
+    "express-session": "^1.17.2",
     "hbs": "^4.2.0",
     "mongodb": "^4.3.0",
-    "node-fetch": "^2.6.6"
+    "node-fetch": "^2.6.6",
+    "passport": "^0.5.2"
   }
 }

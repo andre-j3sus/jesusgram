@@ -1,16 +1,6 @@
-<nav class="nav nav-pills center">
-    <a class="navbar-brand" href="/user/{{userId}}/home"><img src="/public/logo_inline.png" alt="Logo" height="70"></a>
-    <a class="nav-link" href="/user/{{userId}}/dashboard">Dashboard</a>
-    <a class="nav-link active" href="/user/{{userId}}/search">Search People</a>
-    <a class="nav-link" href="/user/{{userId}}/profile">Profile</a>
-    <a class="nav-link" href="/user/{{userId}}/logout">Logout</a>
-</nav>
-
-<hr>
-
 <div class="card card-body w-50 h-center mb-5 bg-light">
     <h1>Search People</h1>
-    <form action="/user/{{userId}}/searchUser" method="GET">
+    <form action="/user/{{user.userId}}/searchUser" method="GET">
         <div class="input-group mb-3">
             <input type="text" class="form-control" name="searchedUserId" placeholder="Search for a userID" required>
             <button type="submit" class="btn btn-primary w-25">Search</button>

@@ -13,6 +13,22 @@
 </head>
 
 <body>
+    <nav class="nav nav-pills center">
+        {{#if user}}
+        <a class="navbar-brand" href="/user/{{user.userId}}/home"><img src="/public/logo_inline.png" alt="Logo"
+                height="70"></a>
+        <a class="nav-link" href="/user/{{user.userId}}/dashboard">Dashboard</a>
+        <a class="nav-link" href="/user/{{user.userId}}/search">Search People</a>
+        <a class="nav-link" href="/user/{{user.userId}}/profile">Profile</a>
+        <a class="nav-link" href="/logout">Logout</a>
+        {{else}}
+        <a class="navbar-brand" href="/"><img src="/public/logo_inline.png" alt="Logo" height="70"></a>
+        <a class="nav-link" href="/register-login">Register/Login</a>
+        {{/if}}
+    </nav>
+
+    <hr>
+
     {{{body}}}
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"

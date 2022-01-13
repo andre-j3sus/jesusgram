@@ -1,17 +1,10 @@
-<nav class="nav nav-pills center">
-    <a class="navbar-brand" href="/"><img src="/public/logo_inline.png" alt="Logo" height="70"></a>
-    <a class="nav-link active" href="/user/register-login">Register/Login</a>
-</nav>
-
-<hr>
-
 <div class="container">
     <div class="row justify-content-evenly">
         <div class="col-5 card m-1 inline bg-light">
             <div class="card-body">
                 <h1 class="card-title">Register</h1>
 
-                <form action="/user/register" method="POST">
+                <form action="/register" method="POST">
                     <div class="mb-3">
                         <label for="userName" class="form-label">User Name:</label>
                         <input type="text" class="form-control" id="userName" name="userName"
@@ -52,7 +45,7 @@
             <div class="card-body">
                 <h1 class="card-title">Login</h1>
 
-                <form action="/user/login" method="POST">
+                <form action="/login" method="POST">
                     <div class="mb-3">
                         <label for="userId" class="form-label">User Id:</label>
                         <input type="text" class="form-control" id="userId" name="userId" aria-describedby="userId"

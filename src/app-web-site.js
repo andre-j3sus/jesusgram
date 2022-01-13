@@ -7,14 +7,22 @@ const express = require('express');
 module.exports = function (services, guest) {
 
     /**
+     * Gets the userId from the request.
+     * @param {Object} req 
+     * @returns the userId from the request
+     */
+    function getUserId(req) {
+        return req.user && req.user.userId;
+    }
+
+    /**
      * Gets the token from the request.
      * @param {Object} req 
      * @returns the token from the request
      */
     function getBearerToken(req) {
-        return guest.token; // To be improved...
+        return req.user && req.user.token;
     }
-
 
     /**
      * Gets the home page.
@@ -22,9 +30,7 @@ module.exports = function (services, guest) {
      * @param {Object} res 
      */
     function getHomePage(req, res) {
-        const userId = req.params.userId;
-
-        res.render('home', { userId });
+        res.render('home', { user: req.user });
     }
 
 
@@ -41,12 +47,11 @@ module.exports = function (services, guest) {
         try {
             const dashboard = await services.getUserDashboard(userId, token);
             const dashboardInOrder = dashboard ? dashboard.reverse() : dashboard;
-            res.render('dashboard', { userId, dashboard: dashboardInOrder });
+            res.render('dashboard', { user: req.user, dashboard: dashboardInOrder });
         }
         catch (error) {
             console.log(error);
-            // To be improved
-            res.redirect(`/`);
+            res.render('error', { error });
         }
     }
 
@@ -56,7 +61,7 @@ module.exports = function (services, guest) {
      * @param {Object} res 
      */
     async function createPost(req, res) {
-        const userId = req.params.userId;
+        const userId = getUserId(userId);
         const token = getBearerToken(req);
         const post = req.body.post;
         const inpFile = req.body.inpFile;
@@ -84,11 +89,10 @@ module.exports = function (services, guest) {
         try {
             const user = await services.getUser(userId, token);
 
-            res.render('profile', { userId, user });
+            res.render('profile', { user: req.user });
         } catch (error) {
             console.log(error);
-            // To be improved
-            res.redirect(`/`);
+            res.render('error', { error });
         }
 
     }
@@ -103,7 +107,7 @@ module.exports = function (services, guest) {
     }
 
     /**
-     * Registers new user.
+     * Register and logins a new user.
      * @param {Object} req 
      * @param {Object} res 
      */
@@ -114,56 +118,57 @@ module.exports = function (services, guest) {
 
         try {
             await services.createUser(userId, userName, password);
-            res.redirect(`/user/${userId}/dashboard`);
+            doLogin(req, res);
         } catch (error) {
             if (error.name == 'ALREADY_EXISTS')
                 res.render('register_login', { already_exists: error })
-            else
-                res.redirect(`/`);
-
-            console.log(error);
+            else {
+                console.log(error);
+                res.render('error', { error });
+            }
         }
     }
 
+
     /**
-     * Logins user.
+     * Logins user
      * @param {Object} req 
      * @param {Object} res 
      */
-    async function loginUser(req, res) {
-        const userId = req.body.userId;
-        const token = getBearerToken(req);
-        const password = req.body.password;
-
-        try {
-            await services.loginUser(userId, token, password);
-            res.redirect(`/user/${userId}/dashboard`);
-        } catch (error) {
-            if (error.name == 'FORBIDDEN')
-                res.render('register_login', { forbidden: error })
-            else
-                res.redirect(`/`);
-
-            console.log(error);
-        }
-    }
-
-    /**
-     * Logout user.
-     * @param {Object} req 
-     * @param {Object} res 
-     */
-    function logoutUser(req, res) {
+    async function doLogin(req, res) {
         const userId = req.body.userId;
         const password = req.body.password;
 
         try {
-            // To be improved
-            res.redirect('/');
+            const user = await services.checkCredentials(userId, password);
+            user.userId = userId;
+            user.token = await services.getToken(userId);
+
+            req.login(user, err => {
+                if (err)
+                    console.log('LOGIN ERROR', err);
+
+                res.redirect(`/user/${userId}/dashboard`);
+            });
         } catch (error) {
-            // To be improved
-            res.redirect(`/`);
+
+            if (error.name == 'UNAUTHENTICATED')
+                res.render('register_login', { unauthenticated: error })
+            else {
+                console.log('LOGIN EXCEPTION', error);
+                res.render('error', { error });
+            }
         }
+    }
+
+    /**
+     * Logouts user
+     * @param {Object} req 
+     * @param {Object} res 
+     */
+    async function doLogout(req, res) {
+        req.logout();
+        res.redirect('/');
     }
 
 
@@ -174,15 +179,7 @@ module.exports = function (services, guest) {
      * @param {Object} res 
      */
     function getSearchPage(req, res) {
-        const userId = req.params.userId;
-
-        try {
-            // To be improved
-            res.render('search', { userId });
-        } catch (error) {
-            // To be improved
-            res.redirect(`/`);
-        }
+        res.render('search', { user: req.user });
     }
 
     /**
@@ -191,15 +188,14 @@ module.exports = function (services, guest) {
      * @param {Object} res 
      */
     function searchUser(req, res) {
-        const userId = req.params.userId;
+        const userId = getUserId(userId);
         const searchedUserId = req.query.searchedUserId;
 
         try {
             // To be implemented
             res.redirect(`/`);
         } catch (error) {
-            // To be improved
-            res.redirect(`/`);
+            res.render('error', { error });
         }
     }
 
@@ -226,16 +222,16 @@ module.exports = function (services, guest) {
 
 
     // Register/Login page
-    router.get('/user/register-login', getRegisterLoginPage);
+    router.get('/register-login', getRegisterLoginPage);
 
     // Register new user
-    router.post('/user/register', registerUser);
+    router.post('/register', registerUser);
 
     // Login user
-    router.post('/user/login', loginUser);
+    router.post('/login', doLogin);
 
     // Logout user
-    router.get('/user/:userId/logout', logoutUser);
+    router.get('/logout', doLogout);
 
 
     // Search page

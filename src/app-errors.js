@@ -1,5 +1,6 @@
 'use strict';
 
+// Contains the application errors list.
 
 /**
  * Builds an errors list.

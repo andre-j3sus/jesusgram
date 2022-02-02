@@ -97,9 +97,9 @@ module.exports = function (services) {
         const token = getBearerToken(req);
 
         try {
-            const user = await services.getUser(userId, token);
+            const userP = await services.getUser(userId);
 
-            res.render('profile', { user: req.user });
+            res.render('profile', { user: req.user, userP });
         } catch (error) {
             console.log(error);
             res.render('error', { error });
@@ -188,8 +188,13 @@ module.exports = function (services) {
      * @param {Object} req 
      * @param {Object} res 
      */
-    function getSearchPage(req, res) {
-        res.render('search', { user: req.user });
+    async function getSearchPage(req, res) {
+        try {
+            const users = await services.getAllUsers();
+            res.render('find_people', { user: req.user, users });
+        } catch (error) {
+            res.render('error', { error });
+        }
     }
 
     /**

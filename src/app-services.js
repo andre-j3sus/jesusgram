@@ -98,6 +98,17 @@ module.exports = function (data) {
             }
         });
 
+        if (!userName.match(/[a-zA-Z0-9]{3,20}/))
+            throw errors.BAD_REQUEST({ userName: "Only alphanumeric characters. Length: [3, 30] characters" });
+
+        if (!userId.match(/[a-z0-9]{4,30}/))
+            throw errors.BAD_REQUEST({ userId: "Only lowercase letters and digits. Length: [4, 30] characters" });
+
+        if (!password.match(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,30}/))
+            throw errors.BAD_REQUEST({
+                password: "Must contain at least one number, one uppercase/lowercase letter, and at least 8 or more characters"
+            });
+
         return await data.createUser(userId, userName, getHashedPassword(password));
     }
 
@@ -108,9 +119,15 @@ module.exports = function (data) {
      * @returns the user object or null if user was not found
      */
     async function getUser(userId, token) {
-        await checkAuthentication(token, userId);
-
         return await data.getUser(userId);
+    }
+
+    /**
+     * Gets all users.
+     * @returns an object with all users
+     */
+    async function getAllUsers(userId, token) {
+        return await data.getAllUsers();
     }
 
     /**
@@ -164,6 +181,7 @@ module.exports = function (data) {
     return {
         createUser,
         getUser,
+        getAllUsers,
         createPost,
         getUserDashboard,
         checkCredentials,

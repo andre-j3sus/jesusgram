@@ -1,7 +1,44 @@
-{{#with user}}
-<div class="card card-body w-50 h-center mb-3 bg-light">
-    <h1>{{userName}}</h1>
-    <h4>User ID: {{userId}}</h4>
-    <h6>Description: {{description}}</h6>
+{{#with userP}}
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="profile-card bg-light">
+        <div class="upper">
+            <img src="/public/images/profile_banner.jpg" class="img-fluid">
+        </div>
+        <div class="user text-center">
+            <div class="profile">
+                <img src="/public/images/profile.jpg" class="rounded-circle" width="80">
+            </div>
+        </div>
+        <div class="mt-5 text-center">
+            <h4 class="mb-0">{{userName}}</h4>
+            <span class="text-muted d-block mb-2">@{{userId}}</span>
+
+            <form action="#" method="POST">
+                <button type="submit" class="btn btn-primary btn-sm follow">Follow</button>
+            </form>
+
+            <div class="d-flex justify-content-between align-items-center mt-4 px-4">
+                <div class="stats">
+                    <h6 class="mb-0">Followers</h6> <span>{{followers.length}}</span>
+                </div>
+                <div class="stats">
+                    <h6 class="mb-0">Posts</h6> <span>{{posts.length}}</span>
+                </div>
+                <div class="stats">
+                    <h6 class="mb-0">Following</h6> <span>{{following.length}}</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
+
+{{#each posts}}
+<br>
+<div class="card card-body w-50 h-center mb-3 bg-light">
+    <div class="card-body">
+        <p class="card-text">{{this}}</p>
+    </div>
+</div>
+{{/each}}
 {{/with}}

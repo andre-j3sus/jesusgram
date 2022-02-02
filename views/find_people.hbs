@@ -1,0 +1,42 @@
+{{#if user}}
+<div class="card card-body w-50 h-center mb-5 bg-light">
+    <h1>Search accounts 🔍</h1>
+    <form action="/user/{{user.userId}}/searchUser" method="GET">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="searchedUserId" pattern="[a-z0-9]{4,30}"
+                title="Only lowercase letters and digits. Length: [4, 30] characters" minlength="4" maxlength="30"
+                placeholder="Search for a user ID" required>
+            <button type="submit" class="btn btn-primary w-25">Search</button>
+        </div>
+    </form>
+</div>
+
+{{#if users}}
+<h1>People you may know:</h1>
+<div class="row justify-content-center">
+    {{#each users}}
+    <div class="col-4">
+        <div class="container d-flex justify-content-center align-items-center">
+            <div class="profile-card bg-light">
+                <div class="upper">
+                    <img src="/public/images/profile_banner.jpg" class="img-fluid">
+                </div>
+                <div class="user text-center">
+                    <div class="profile">
+                        <img src="/public/images/profile.jpg"
+                            class="rounded-circle" width="80">
+                    </div>
+                </div>
+                <div class="mt-5 text-center">
+                    <h4 class="mb-0"><a href="/user/{{userId}}/profile">{{userName}}</a></h4>
+                    <span class="text-muted d-block mb-2">@{{userId}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+</div>
+{{/if}}
+{{else}}
+<h1>Page not available😥</h1>
+{{/if}}

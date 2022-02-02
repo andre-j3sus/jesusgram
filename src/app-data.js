@@ -108,7 +108,8 @@ module.exports = function (db) {
             userName,
             hashedPassword,
             posts: [],
-            following: []
+            following: [],
+            followers: []
         };
     }
 
@@ -174,6 +175,28 @@ module.exports = function (db) {
         }
 
         throw errors.NOT_FOUND('User does not exist.');
+    }
+
+    /**
+     * Gets an object with all users.
+     * @returns an object with all users
+     */
+    async function getAllUsers() {
+        try {
+            await db.client.connect();
+
+            const database = db.client.db(db.name);
+
+            const users = await database.collection(db.usersBucket).find({}).toArray();
+            return users;
+        }
+        catch (err) {
+            console.log(err);
+            // To be improved
+        }
+        finally {
+            await db.client.close();
+        }
     }
 
     /**
@@ -249,6 +272,7 @@ module.exports = function (db) {
         //-- User --
         createUser,
         getUser,
+        getAllUsers,
         createPost,
         getUserDashboard,
         getUserPassword,

@@ -13,6 +13,7 @@ passport.deserializeUser((userInfo, done) => {
         userName: userInfo.userName,
         posts: userInfo.posts,
         following: userInfo.following,
+        followers: userInfo.followers,
         token: userInfo.token
     });
 });

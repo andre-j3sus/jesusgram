@@ -1,5 +1,6 @@
+{{#if user}}
 <div class="card card-body w-50 h-center mb-5 bg-light">
-    <h1>Create post</h1>
+    <h1>Create a post ✍️</h1>
 
     <form action="/user/{{user.userId}}/dashboard" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
@@ -22,3 +23,7 @@
     </div>
 </div>
 {{/each}}
+
+{{else}}
+<h1>Page not available😥</h1>
+{{/if}}

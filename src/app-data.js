@@ -1,6 +1,6 @@
 'use strict';
 
-// Access to app data.
+// Access to app data using MongoDB.
 
 const crypto = require('crypto');
 const errors = require('./app-errors');
@@ -20,12 +20,10 @@ module.exports = function (db) {
             await db.client.connect();
 
             const database = db.client.db(db.name);
-            const tokens = database.collection('tokens');
+            const tokens = database.collection(db.tokensBucket);
 
-            const doc = await tokens.findOne({ token });
-            // console.log(doc);
-
-            return doc.userId;
+            const tokenDoc = await tokens.findOne({ token });
+            return tokenDoc.userId;
         }
         catch (err) {
             console.log(err);
@@ -50,11 +48,9 @@ module.exports = function (db) {
             await db.client.connect();
 
             const database = db.client.db(db.name);
-            const tokens = database.collection('tokens');
+            const tokens = database.collection(db.tokensBucket);
 
-            const insertResult = await tokens.insertOne({ token, userId });
-            // console.log('Created token:', insertResult);
-
+            await tokens.insertOne({ token, userId });
             return token;
         }
         catch (err) {
@@ -69,22 +65,22 @@ module.exports = function (db) {
     }
 
     /**
-	 * Gets an user token.
-	 * @param {String} userId 
-	 * @returns the user token
-	 * @throws NOT_FOUND if the token doesn't exist
-	 */
-	async function getToken(userId) {
+     * Gets an user token.
+     * @param {String} userId 
+     * @param {String} userId 
+     * @param {String} userId 
+     * @returns the user token
+     * @throws NOT_FOUND if the token doesn't exist
+     */
+    async function getToken(userId) {
         try {
             await db.client.connect();
 
             const database = db.client.db(db.name);
-            const users = database.collection('tokens');
+            const users = database.collection(db.tokensBucket);
 
-            const token = await users.findOne({ userId });
-            // console.log(token);
-
-            return token.token;
+            const tokenDoc = await users.findOne({ userId });
+            return tokenDoc.token;
         }
         catch (err) {
             console.log(err);
@@ -95,26 +91,38 @@ module.exports = function (db) {
         }
 
         throw errors.NOT_FOUND({ 'token for user': userId });
-	}
+    }
 
     // ------------------------- Users -------------------------
 
     /**
-     * Creates a new user given its id, name and password.
+     * Creates a new user object given its id, name and password.
      * @param {String} userId 
      * @param {String} userName 
-     * @param {String} password 
-     * @returns an object with the new user or null
-     * @throws ALREADY_EXISTS if the user already exists
+     * @param {String} hashedPassword 
+     * @returns an object with the user information
      */
-    async function createUser(userId, userName, hashedPassword) {
-        const user = {
+    const createUserObj = (userId, userName, hashedPassword) => {
+        return {
             userId,
             userName,
             hashedPassword,
             posts: [],
             following: []
         };
+    }
+
+
+    /**
+     * Creates a new user given its id, name and password.
+     * @param {String} userId 
+     * @param {String} userName 
+     * @param {String} hashedPassword 
+     * @returns an object with the new user or null
+     * @throws ALREADY_EXISTS if the user already exists
+     */
+    async function createUser(userId, userName, hashedPassword) {
+        const user = createUserObj(userId, userName, hashedPassword);
 
         if (await getUser(userId))
             throw errors.ALREADY_EXISTS('User with specified userID already exists.');
@@ -125,11 +133,9 @@ module.exports = function (db) {
             await db.client.connect();
 
             const database = db.client.db(db.name);
-            const users = database.collection('users');
+            const users = database.collection(db.usersBucket);
 
-            const insertResult = await users.insertOne(user);
-            // console.log('Created user:', insertResult);
-
+            await users.insertOne(user);
             return user;
         }
         catch (err) {
@@ -154,11 +160,9 @@ module.exports = function (db) {
             await db.client.connect();
 
             const database = db.client.db(db.name);
-            const users = database.collection('users');
+            const users = database.collection(db.usersBucket);
 
             const user = await users.findOne({ userId });
-            // console.log(user);
-
             return user;
         }
         catch (err) {
@@ -186,13 +190,11 @@ module.exports = function (db) {
                 await db.client.connect();
 
                 const database = db.client.db(db.name);
-                const users = database.collection('users');
+                const users = database.collection(db.usersBucket);
 
                 user.posts.push(post);
 
-                const updateResult = await users.updateOne({ userId }, { $set: user });
-                // console.log(updateResult);
-
+                await users.updateOne({ userId }, { $set: user });
                 return user;
             }
             catch (err) {

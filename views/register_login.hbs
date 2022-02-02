@@ -6,23 +6,23 @@
 
                 <form action="/register" method="POST">
                     <div class="mb-3">
-                        <label for="userName" class="form-label">User Name:</label>
-                        <input type="text" class="form-control" id="userName" name="userName"
+                        <label for="register-userName" class="form-label">User Name:</label>
+                        <input type="text" class="form-control" id="register-userName" name="userName"
                             aria-describedby="userName" placeholder="Enter User Name" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="userId" class="form-label">User Id:</label>
-                        <input type="text" class="form-control" id="userId" name="userId" placeholder="Enter User Id"
-                            required>
+                        <label for="register-userId" class="form-label">User Id:</label>
+                        <input type="text" class="form-control" id="register-userId" name="userId"
+                            placeholder="Enter User Id" required>
                         <small id="idHelp" class="form-text text-muted">
                             User Id is recommended to be some short and easy to remember.
                         </small>
                     </div>
 
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password:</label>
-                        <input type="password" class="form-control" id="password" name="password"
+                        <label for="register-password" class="form-label">Password:</label>
+                        <input type="password" class="form-control" id="register-password" name="password"
                             placeholder="Enter Your Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
                         <small id="passwordHelp" class="form-text text-muted">
                             Don't share your password with anyone.

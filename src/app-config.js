@@ -1,6 +1,6 @@
 'use strict';
 
-// Application config.
+// Application configuration.
 
 module.exports = {
 	guest: {
@@ -10,6 +10,9 @@ module.exports = {
 	},
 	db: {
 		name: 'jesusgram-db',
-		uri: `mongodb+srv://andrejesus:${process.env['JESUSGRAM_DB_PASSWORD']}@jesusgram-db.hhp5z.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+		uri: `mongodb+srv://andrejesus:${process.env['JESUSGRAM_DB_PASSWORD']}@jesusgram-db.hhp5z.mongodb.net/jesusgram-db?retryWrites=true&w=majority`,
+		usersBucket: "users",
+		tokensBucket: "tokens",
+		imgsBucket: "images"
 	}
 };

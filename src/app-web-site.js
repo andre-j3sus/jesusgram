@@ -3,8 +3,9 @@
 // Application Web Site
 
 const express = require('express');
+const upload = require("./upload");
 
-module.exports = function (services, guest) {
+module.exports = function (services) {
 
     /**
      * Gets the userId from the request.
@@ -47,7 +48,13 @@ module.exports = function (services, guest) {
         try {
             const dashboard = await services.getUserDashboard(userId, token);
             const dashboardInOrder = dashboard ? dashboard.reverse() : dashboard;
-            res.render('dashboard', { user: req.user, dashboard: dashboardInOrder });
+            res.render(
+                'dashboard',
+                {
+                    user: req.user,
+                    dashboard: dashboardInOrder
+                }
+            );
         }
         catch (error) {
             console.log(error);
@@ -61,15 +68,18 @@ module.exports = function (services, guest) {
      * @param {Object} res 
      */
     async function createPost(req, res) {
-        const userId = getUserId(userId);
+        await upload(req, res);
+        console.log(req.body);
+        const userId = req.params.userId;
         const token = getBearerToken(req);
         const post = req.body.post;
-        const inpFile = req.body.inpFile;
+        const image = req.body.image;
 
         try {
             await services.createPost(userId, token, post);
             res.redirect(`/user/${userId}/dashboard`);
         } catch (error) {
+            console.log(error);
             // To be improved
             res.redirect(`/user/${userId}/dashboard`);
         }

@@ -33,6 +33,7 @@ function buildErrorList() {
     addError(1004, 'EXT_SVC_FAIL', 'External service failure');
     addError(1005, 'UNAUTHENTICATED', 'Invalid or missing token');
     addError(1006, 'FORBIDDEN', 'Wrong username and/or password');
+    addError(1007, 'MISSING_PARAM', 'Missing parameter');
 
     return errors;
 }

@@ -7,7 +7,15 @@ const session = require('express-session');
 const passport = require('passport');
 
 passport.serializeUser((userInfo, done) => { done(null, userInfo); });
-passport.deserializeUser((userInfo, done) => { done(null, userInfo); });
+passport.deserializeUser((userInfo, done) => {
+    done(null, {
+        userId: userInfo.userId,
+        userName: userInfo.userName,
+        posts: userInfo.posts,
+        following: userInfo.following,
+        token: userInfo.token
+    });
+});
 
 module.exports = function (guest, db) {
 
@@ -26,7 +34,7 @@ module.exports = function (guest, db) {
 
     app.set('view engine', 'hbs');
 
-    app.use('/favicon.ico', express.static('static-files/icon.png'));
+    app.use('/favicon.ico', express.static('static-files/images/icon.png'));
     app.use('/public', express.static('static-files'));
 
     app.use('/', web_site);

@@ -2,7 +2,7 @@ h1::before {
 	content: '';
 	padding-right: 48px;
 	padding-left: 18px;
-	background-image: url(/public/icon.png);
+	background-image: url(/public/images/icon.png);
 	background-size: contain;
 	background-repeat: no-repeat;
 }

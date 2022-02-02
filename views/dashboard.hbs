@@ -1,15 +1,17 @@
 <div class="card card-body w-50 h-center mb-5 bg-light">
     <h1>Create post</h1>
-    <form action="/user/{{user.userId}}/dashboard" method="POST" id="myForm">
+
+    <form action="/user/{{user.userId}}/dashboard" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
             <textarea class="form-control" name="post" id="textareaChars" placeholder="What's on your mind?"
                 maxlength="150" style="height: 80px;" required></textarea>
         </div>
         <div class="input-group mb-3">
-            <input type="file" class="form-control" id="inpFile" name="inpFile" accept="image/*">
-            <button type="submit" class="btn btn-primary w-25">Post</button>
+            <input type="file" class="form-control" name="image" accept="image/*">
+            <input type="submit" class="btn btn-primary w-25" value="Post" />
         </div>
     </form>
+
 </div>
 
 {{#each dashboard}}

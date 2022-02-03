@@ -243,13 +243,18 @@ module.exports = function (services) {
      * @param {Object} req 
      * @param {Object} res 
      */
-    function searchUser(req, res) {
-        const userId = getUserId(userId);
+    async function searchUser(req, res) {
         const searchedUserId = req.query.searchedUserId;
 
         try {
-            // To be implemented
-            res.redirect(`/`);
+            const user = await services.getUser(searchedUserId);
+
+            if (user)
+                res.redirect(`/user/${user.userId}/profile`)
+            else {
+                const users = await services.getAllUsers();
+                res.render('find_people', { user: req.user, users, notFound: searchedUserId });
+            }
         } catch (error) {
             res.render('error', { error });
         }
@@ -280,7 +285,7 @@ module.exports = function (services) {
     router.post('/user/:userId/followers', followUser);
 
     // Unfollow
-    router.post('/user/:userId/followers/unfollow', unfollowUser);
+    router.post('/user/:userId/followers/unfollow', unfollowUser); // To be replaced
 
 
     // Register/Login page
@@ -300,7 +305,7 @@ module.exports = function (services) {
     router.get('/user/:userId/search', getSearchPage);
 
     // Search user
-    router.get('/user/{{userId}}/searchUser', searchUser);
+    router.get('/user/:userId/searchUser', searchUser);
 
     return router;
 };

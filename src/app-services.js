@@ -114,11 +114,10 @@ module.exports = function (data) {
 
     /**
      * Gets a user.
-     * @param {String} userId 
-     * @param {String} token
+     * @param {String} userId
      * @returns the user object or null if user was not found
      */
-    async function getUser(userId, token) {
+    async function getUser(userId) {
         return await data.getUser(userId);
     }
 
@@ -126,7 +125,7 @@ module.exports = function (data) {
      * Gets all users.
      * @returns an object with all users
      */
-    async function getAllUsers(userId, token) {
+    async function getAllUsers() {
         return await data.getAllUsers();
     }
 
@@ -178,11 +177,46 @@ module.exports = function (data) {
     }
 
 
+    /**
+     * Follows a user.
+     * @param {Object} user 
+     * @param {Object} userToFollow
+     * @returns user that follows
+     */
+    async function followUser(user, userToFollow) {
+        if (!user || !userToFollow)
+            throw errors.FAIL('User not found');
+
+        if (userToFollow.followers.some((follower) => follower == user.userId))
+            return user;
+        else
+            return await data.followUser(user, userToFollow);
+    }
+
+    /**
+     * Unfollows a user.
+     * @param {Object} user 
+     * @param {Object} userToUnfollow
+     * @returns user that unfollows
+     */
+    async function unfollowUser(user, userToUnfollow) {
+        if (!user || !userToUnfollow)
+            throw errors.FAIL('User not found');
+
+        if (userToUnfollow.followers.some((follower) => follower == user.userId))
+            return await data.unfollowUser(user, userToUnfollow);
+        else
+            return user;
+    }
+
+
     return {
         createUser,
         getUser,
         getAllUsers,
         createPost,
+        followUser,
+        unfollowUser,
         getUserDashboard,
         checkCredentials,
         getToken

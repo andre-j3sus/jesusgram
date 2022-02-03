@@ -87,6 +87,7 @@ module.exports = function (services) {
 
 
     // --------------------------- User ---------------------------
+
     /**
      * Gets the profile page.
      * @param {Object} req 
@@ -94,17 +95,57 @@ module.exports = function (services) {
      */
     async function getProfilePage(req, res) {
         const userId = req.params.userId;
-        const token = getBearerToken(req);
 
         try {
-            const userP = await services.getUser(userId);
+            const userProfile = await services.getUser(userId);
+            const myProfile = userProfile.userId == req.user.userId;
+            const follows = !myProfile && req.user.following.some((following) => following == userProfile.userId);
 
-            res.render('profile', { user: req.user, userP });
+            res.render('profile', { user: req.user, userProfile, myProfile, follows });
         } catch (error) {
             console.log(error);
             res.render('error', { error });
         }
+    }
 
+    /**
+     * Follows a user.
+     * @param {Object} req 
+     * @param {Object} res 
+     */
+    async function followUser(req, res) {
+        const userId = req.params.userId;
+
+        try {
+            const userToFollow = await services.getUser(userId);
+            const user = await services.followUser(req.user, userToFollow);
+            req.logIn(user, (err) => { });
+
+            res.redirect(`/user/${userToFollow.userId}/profile`);
+        } catch (error) {
+            console.log(error);
+            res.render('error', { error });
+        }
+    }
+
+    /**
+     * Unfollows a user.
+     * @param {Object} req 
+     * @param {Object} res 
+     */
+    async function unfollowUser(req, res) {
+        const userId = req.params.userId;
+
+        try {
+            const userToUnfollow = await services.getUser(userId);
+            const user = await services.unfollowUser(req.user, userToUnfollow);
+            req.logIn(user, (err) => { });
+
+            res.redirect(`/user/${userToUnfollow.userId}/profile`);
+        } catch (error) {
+            console.log(error);
+            res.render('error', { error });
+        }
     }
 
     /**
@@ -234,6 +275,12 @@ module.exports = function (services) {
 
     // Profile
     router.get('/user/:userId/profile', getProfilePage);
+
+    // Follow
+    router.post('/user/:userId/followers', followUser);
+
+    // Unfollow
+    router.post('/user/:userId/followers/unfollow', unfollowUser);
 
 
     // Register/Login page

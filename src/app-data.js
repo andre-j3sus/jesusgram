@@ -268,6 +268,68 @@ module.exports = function (db) {
     }
 
 
+    /**
+     * Follows a user.
+     * @param {Object} user
+     * @param {Object} userToFollow
+     * @returns user that follows
+     */
+    async function followUser(user, userToFollow) {
+        try {
+            await db.client.connect();
+
+            const database = db.client.db(db.name);
+            const users = database.collection(db.usersBucket);
+
+            userToFollow.followers.push(user.userId);
+            await users.updateOne({ userId: userToFollow.userId }, { $set: userToFollow });
+
+            user.following.push(userToFollow.userId);
+            await users.updateOne({ userId: user.userId }, { $set: user });
+
+            return user;
+        }
+        catch (err) {
+            console.log(err);
+            // To be improved
+        }
+        finally {
+            await db.client.close();
+        }
+    }
+
+
+    /**
+     * Follows a user.
+     * @param {Object} user
+     * @param {Object} userToUnfollow
+     * @returns user that follows
+     */
+    async function unfollowUser(user, userToUnfollow) {
+        try {
+            await db.client.connect();
+
+            const database = db.client.db(db.name);
+            const users = database.collection(db.usersBucket);
+
+            userToUnfollow.followers = userToUnfollow.followers.filter((follower) => follower != user.userId);
+            await users.updateOne({ userId: userToUnfollow.userId }, { $set: userToUnfollow });
+
+            user.following = user.following.filter((following) => following != userToUnfollow.userId);
+            await users.updateOne({ userId: user.userId }, { $set: user });
+
+            return user;
+        }
+        catch (err) {
+            console.log(err);
+            // To be improved
+        }
+        finally {
+            await db.client.close();
+        }
+    }
+
+
     return {
         //-- User --
         createUser,
@@ -276,6 +338,8 @@ module.exports = function (db) {
         createPost,
         getUserDashboard,
         getUserPassword,
+        followUser,
+        unfollowUser,
 
         //-- Tokens --
         tokenToUserId,

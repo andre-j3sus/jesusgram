@@ -202,7 +202,7 @@ module.exports = function (db) {
     /**
      * Creates a post.
      * @param {String} userId 
-     * @param {String} post 
+     * @param {Object} post 
      * @returns the user
      * @throws NOT_FOUND if the user does not exist
      */
@@ -241,11 +241,12 @@ module.exports = function (db) {
     async function getUserDashboard(userId) {
         const user = await getUser(userId);
         if (user) {
-            const dashboard = user.posts;
-            user.following.forEach(async followingId => {
+            let dashboard = user.posts;
+
+            for (const followingId of user.following) {
                 const following = await getUser(followingId);
-                dashboard.concat(following.posts);
-            });
+                dashboard = dashboard.concat(following.posts);
+            }
 
             return dashboard;
         }

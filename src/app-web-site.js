@@ -69,11 +69,17 @@ module.exports = function (services) {
      */
     async function createPost(req, res) {
         await upload(req, res);
-        console.log(req.body);
         const userId = req.params.userId;
         const token = getBearerToken(req);
-        const post = req.body.post;
-        const image = req.body.image;
+
+        const post = {
+            user: userId,
+            text: req.body.post,
+            imageID: req.body.image,
+            date: (new Date()).toDateString(),
+            likes: [],
+            comments: {}
+        };
 
         try {
             await services.createPost(userId, token, post);

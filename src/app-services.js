@@ -133,12 +133,12 @@ module.exports = function (data) {
      * Creates a post.
      * @param {String} userId 
      * @param {String} token 
-     * @param {String} post 
+     * @param {Object} post 
      */
     async function createPost(userId, token, post) {
         checkBadRequest({
             body: {
-                post: { value: post, type: 'string', required: true }
+                post: { value: post, type: 'object', required: true }
             }
         });
 

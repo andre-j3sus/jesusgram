@@ -45,7 +45,14 @@
 <br>
 <div class="card card-body w-50 h-center mb-3 bg-light">
     <div class="card-body">
-        <p class="card-text">{{this}}</p>
+        <h5 class="card-title"><a href="/user/{{user}}/profile">{{user}}</a></h5>
+        <small>{{date}}</small>
+        <p class="card-text">
+            {{text}}
+            <br>
+            <strong>❤️ {{likes.length}}</strong>
+        </p>
+        <!--Add comments-->
     </div>
 </div>
 {{/each}}
